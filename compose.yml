@@ -1,0 +1,9 @@
+services:
+  app:
+    image: ubuntu_im
+    volumes: 
+      - type: bind
+        source: ./scraper
+        target: /home/hosting/scraper
+    stdin_open: true 
+    tty: true  
