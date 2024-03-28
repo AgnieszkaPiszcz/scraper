@@ -2,15 +2,15 @@ require "async"
 require "httparty" 
 require "nokogiri"
 require 'pp'
-require 'grover'
-require 'erb'
+
 
 Encoding.default_external = "UTF-8"
 
 # start = Time.now
 
-class Scraper
-    def self.get_car_info_from_article_element(item)
+module Scraper
+    module_function
+    def get_car_info_from_article_element(item)
         name = item.xpath('.//section/div[2]/h1/a/text()')
         basic_info = item.xpath('.//section/div[3]/dl[1]/dd/text()')
         mileage = basic_info[0]
@@ -39,7 +39,7 @@ class Scraper
         }
     end
 
-    def self.get_results_from_page(page) 
+    def get_results_from_page(page) 
         url = "https://www.otomoto.pl/osobowe/bmw?page=#{page.to_s}"
         begin
             response = HTTParty.get("https://www.otomoto.pl/osobowe/bmw")
@@ -63,7 +63,7 @@ class Scraper
             .map { |item| get_car_info_from_article_element(item) }
     end
 
-    def self.async_get_cars()
+    def async_get_cars()
         Async do 
             1.upto(4).map { |i|
                 Async do
@@ -75,46 +75,17 @@ class Scraper
             .flatten!
         end
     end
-end
 
-class Presenter
-    def self.create_csv()
-        cars = Scraper.async_get_cars().wait
-        begin
-            csv = CSV.open("cars.csv", "wb") do |csv|
-                csv << cars.first.keys 
-                cars.each do |car|
-                csv << car.values
-                end
-            end   
-        rescue CSV::Error => e
-            puts "CSV handling error: #{e.class}. Try again"
-            exit(1)
-        end
-
-    end
-
-    def self.create_pdf() 
-        start = Time.now
-        cars = Scraper.async_get_cars().wait
-        begin
-            html = File.open('template.erb').read
-        rescue File::Error => e
-            puts "File handling error: #{e.class}. Try again"
-            exit(1)
-        end
-        template = ERB.new(html)
-        file = template.result(binding)
-        Grover.configure do |config|
-            config.options = {
-                launch_args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            }
-        end
-        pdf = Grover.new(file, format: 'A4').to_pdf('cars.pdf')
+    def get_cars()
+        1.upto(4).map { |i|
+            get_results_from_page(i)
+        } 
+        .concat
+        .flatten!
     end
 end
 
-Presenter::create_pdf
+# Presenter::create_pdf
 
 
 # puts "Duration: #{Time.now - start}"
