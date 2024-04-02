@@ -21,12 +21,13 @@ module Scraper
         gearshift = basic_info[2]
         year = basic_info[3]
         addtional_info = item.at_xpath('.//section/div[2]/p/text()') #.to_s.gsub!('•', '-')
-        image = item.at_xpath('.//section/div/img')
+        image = item.at_xpath('.//section/div[1]/img')
         unless image.nil?
             image = image.attr("src")
         else 
             image = item.at_xpath('.//section/div[1]/div/div[1]/div/div[1]/a/img').attr("src")
         end
+        # image = ""
         location = item.at_xpath('.//section/div[3]/dl[2]/dd[1]/p/text()')
         price = item.at_xpath('.//section/div[4]/div[2]/div[1]/h3/text()')
         {
