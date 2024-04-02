@@ -9,3 +9,6 @@ gem "httparty"
 gem "nokogiri"
 gem 'grover'
 gem 'pdfkit'
+gem 'minitest'
+
+

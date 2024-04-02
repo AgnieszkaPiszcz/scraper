@@ -1,14 +1,19 @@
 require 'erb'
 require 'pdfkit'
 
+
+##
+# This module provides two ways to present data about cars.
 module Presenter
     module_function
+    ##
+    # Takes a list of hashes with car data and creates a csv file where each row represents one car.
     def create_csv(cars)
         begin
             csv = CSV.open("output/cars.csv", "wb") do |csv|
                 csv << cars.first.keys 
                 cars.each do |car|
-                csv << car.values
+                    csv << car.values
                 end
             end   
         rescue CSV::Error => e
@@ -18,6 +23,8 @@ module Presenter
 
     end
 
+    ##
+    # Takes a list of hashes and creates a formatted pdf file with car data.
     def create_pdf(cars) 
         start = Time.now
         begin
@@ -37,3 +44,4 @@ module Presenter
         kit = PDFKit.new(file, options).to_file('output/cars.pdf')
     end
 end
+
